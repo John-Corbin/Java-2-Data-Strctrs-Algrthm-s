@@ -1,0 +1,152 @@
+package project_6;
+
+import java.io.*;
+import java.util.*;
+
+//FOR PART 3 change what txt file you read from to the 10complete
+/**
+ * PsalmsReaderMain class - Template for Assignment-5
+ * 
+
+ */
+public class DynamicArray {
+	static ArrayList<String> words = new ArrayList<String>();
+	static ArrayList<Integer> count = new ArrayList<Integer>();
+	static int lastIndex = 0;
+	static long compareStringCount = 0;
+	static long moveStringCount = 0;
+
+	/**
+	 * addWordToList - add word to list or increment counter
+	 * 
+	 * @param inWord - the word to add to the list
+	 * @return number of words in the list
+	 */
+
+	static int addWordToList(String inWord) {
+		boolean foundWord = false;
+		lastIndex = words.size();
+
+		// Search for word, set boolean and increment count if found
+		for (int i = 0; i < lastIndex; i++) {
+			compareStringCount++;
+			if (inWord.compareTo(words.get(i)) == 0) {
+				foundWord = true;
+				count.set(i, count.get(i) + 1);
+				break;
+			}
+		}
+
+		// If word not found in the loop above, add it to list bottom
+		if (!foundWord) {
+			moveStringCount++;
+			words.add(inWord);
+			count.add(1);
+			lastIndex++;
+		}
+
+		return lastIndex;
+	}
+
+	/**
+	 * addWordToSortedList - add word to sorted list or increment counter
+	 * 
+	 * @param inWord - the word to add to the list
+	 * @return number of words in the list
+	 */
+
+	static int addWordToSortedList(String inWord) {
+
+		int pastW = lastIndex; // temp int for the past word
+		int low = 0;
+		int high = lastIndex - 1;
+
+		while (low <= high) {
+			int mid = (low + high) / 2;
+			int compare = words.get(mid).compareTo(inWord);
+			if (compare == 0) {
+				compareStringCount++;
+				int currentCount = count.get(mid);
+				count.set(mid, currentCount + 1);
+				return lastIndex;
+			} else if (compare > 0) {
+				compareStringCount++;
+				pastW = mid;
+				high = mid - 1;
+			} else {
+				compareStringCount++;
+				low = mid + 1;
+			}
+		}
+
+		words.add(pastW, inWord);
+		count.add(pastW, 1);
+		moveStringCount++;
+		lastIndex++;
+
+		return lastIndex;
+
+	}
+
+	/**
+	 * printWordList - dump the list if count > inMinimum
+	 */
+	static void printWordList(int inMinimum) {
+		System.out.println("Total words: " + lastIndex);
+		System.out.println("Compare count: " + compareStringCount);
+		System.out.println("Move count: " + moveStringCount);
+		for (int i = 0; i < lastIndex; i++) {
+			if (count.get(i) >= inMinimum) {
+				System.out.println(words.get(i) + ":" + count.get(i));
+			}
+		}
+	}
+
+	/**
+	 * getVerse - Parse and return only the Psalms verse
+	 * 
+	 * @param inLine - the line to parse on tab delimiter
+	 * @return right half of tab delimited string
+	 */
+	static String getVerse(String inLine) {
+		String[] ver = inLine.split("\t");
+		return ver[1];
+	}
+
+	/**
+	 * PsalmsReaderMain main() - Template for Assignment-5
+	 * 
+	 * @param args
+	 */
+
+	public static void main(String[] args) {
+		try {
+			// Open the required text file for sequential read
+			Scanner inputFile = new Scanner(new File("bible-psalms.txt"));
+			// Check for EOF, read the next line, and display it
+			while (inputFile.hasNextLine()) {
+				String inLine, verse;
+				String[] verseParsed;
+
+				inLine = inputFile.nextLine();
+				verse = getVerse(inLine);
+				verseParsed = verse.split("[ :;,.'!?()-]+");
+
+				for (String s : verseParsed) {
+				//	addWordToList(s.toLowerCase());
+					 addWordToSortedList(s.toLowerCase());
+				}
+
+			}
+
+			// Close the required file when EOF is reached
+			inputFile.close();
+			printWordList(1000);
+		} // END try
+		catch (Exception e) {
+			// All Exceptions come here for graceful termination
+			System.out.println("Error: " + e);
+		} // END catch
+	} // END main
+} // END class
+//test https://stackoverflow.com/questions/44856634/is-there-a-way-to-sort-a-string-in-java-alphabetically-without-putting-the-strin
