@@ -1,0 +1,144 @@
+package project_5;
+
+import java.io.*;
+import java.util.*;
+
+/**
+ * PsalmsReaderMain class - Template for Assignment-5
+ *
+ */
+public class SortListLin {
+	static String words[] = new String[13000];
+	static int count[] = new int[13000];
+	static int lastIndex = 0;
+	static long compareStringCount = 0;
+	static long moveStringCount = 0;
+	
+	/**
+	 * addWordToList - add word to list or increment counter
+	 * @param inWord - the word to add to the list
+	 * @return number of words in the list
+	 */
+	static int addWordToList(String inWord) {
+		boolean foundWord = false;
+		
+		// Search for word, set boolean and increment count if found
+		for (int i = 0; i < lastIndex; i++) {
+			compareStringCount++;
+			if (inWord.compareTo(words[i]) == 0) {
+				foundWord = true;
+				count[i]++;
+				break;
+			}
+		}
+		// If word not found in the loop above, add it to list bottom
+		if (!foundWord) {
+			moveStringCount++;
+			words[lastIndex] = String.valueOf(inWord);
+			count[lastIndex] = 1;
+			lastIndex += 1;
+		}
+		return lastIndex;
+	}
+	
+	/**
+	 * addWordToSortedList - add word to sorted list or increment counter
+	 * @param inWord - the word to add to the list
+	 * @return number of words in the list
+	 */
+	static int addWordToSortedList(String inWord) {
+		boolean foundWord = false;
+		int pastW = lastIndex; // temp int for the past word
+
+		for (int i = 0; i < lastIndex; i++) {
+			compareStringCount++;
+			if (inWord.compareTo(words[i]) == 0) {
+				foundWord = true;
+				count[i]++;
+				break;
+			} else {
+				compareStringCount++;
+				if (words[i].compareTo(inWord) > 0) {
+					compareStringCount++;
+					foundWord = false;
+					pastW = i;
+					break;
+				}
+			}
+		}
+		// If word not found in the loop above, add it to sorted list
+		if (!foundWord) {
+			for (int i = lastIndex; i >= pastW + 1; i--) {
+				moveStringCount++;
+				words[i] = words[i - 1];
+				count[i] = count[i - 1];
+
+			}
+			words[pastW] = String.valueOf(inWord);
+			count[pastW] = 1;
+			moveStringCount++;
+			lastIndex++;
+		}
+
+		return lastIndex;
+
+	}
+	
+	/**
+	 * printWordList - dump the list if count > inMinimum
+	 */
+	static void printWordList(int inMinimum) {
+		System.out.println("Total words: " + lastIndex);
+		System.out.println("Compare count: " + compareStringCount);
+		System.out.println("Move count: " + moveStringCount);
+		for (int i = 0; i < lastIndex; i++) {
+			if (count[i] >= inMinimum) {
+				System.out.println(words[i] + ":" + count[i]);
+			}
+		}
+	}
+	
+	/**
+	 * getVerse - Parse and return only the Psalms verse
+	 * @param inLine - the line to parse on tab delimiter
+	 * @return right half of tab delimited string
+	 */
+	static String getVerse(String inLine) {
+		String[] ver = inLine.split("\t");
+		return ver[1];
+	}
+
+	/**
+	 * PsalmsReaderMain main() - Template for Assignment-5
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		try {
+			// Open the required text file for sequential read
+			Scanner inputFile = new Scanner(new File("bible-complete.txt"));
+			// Check for EOF, read the next line, and display it
+			while (inputFile.hasNextLine()) {
+				String inLine, verse;
+				String[] verseParsed;
+
+				inLine = inputFile.nextLine();
+				verse = getVerse(inLine);
+				verseParsed = verse.split("[ :;,.'!?()-]+");
+				
+				for (String s : verseParsed) {
+					 addWordToList(s.toLowerCase());
+					//addWordToSortedList(s.toLowerCase());
+				}
+				
+			}
+			// Close the required file when EOF is reached
+			inputFile.close();
+			printWordList(1000);
+		} // END try
+		catch (Exception e) {
+			// All Exceptions come here for graceful termination
+			System.out.println("Error: " + e);
+		} // END catch
+	} // END main
+} // END class
+//test https://stackoverflow.com/questions/44856634/is-there-a-way-to-sort-a-string-in-java-alphabetically-without-putting-the-strin
