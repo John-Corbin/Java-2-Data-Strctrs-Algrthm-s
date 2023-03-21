@@ -1,0 +1,100 @@
+package project_4;
+
+import java.io.*;
+import java.util.*;
+
+/**
+ * PsalmsReaderMain class - Template for Assignment-4
+
+ */
+public class PsalmsReaderMain {
+	static String words[] = new String[3000];
+	static int count[] = new int[3000];
+	static int lastIndex = 0;
+
+	/**
+	 * 
+	 * addWordToList - add word to list or increment counter
+	 * 
+	 * @param inWord - the word to add to the list
+	 * @return number of words in the list
+	 *
+	 */
+	static int addWordToList(String inWord) {
+		for (int i = 0; i < words.length; i++) {
+			if (i == lastIndex) {
+				words[i] = inWord;
+				count[i] = 1;
+				lastIndex += 1;
+				break;
+			} else if (words[i].equals(inWord)) {
+				count[i] += 1;
+				break;
+			}
+
+		}
+		return lastIndex;
+	}
+
+	/**
+	 * printWordList - dump the list if count > inMinimum
+	 */
+	static void printWordList(int inMinimum) {
+		System.out.println("These Books of the Bible appear more than 1000 times:");
+		// Your code goes here
+		for (int i = 0; i < words.length; i++) {
+			if (count[i] >= inMinimum) {
+				System.out.print(words[i] + " ");
+				System.out.println(count[i]);
+
+			}
+
+		}
+	}
+
+	/**
+	 * getVerse - Parse and return only the Psalms verse
+	 * 
+	 * @param inLine - the line to parse on tab delimiter
+	 * @return right half of tab delimited string
+	 */
+	static String getVerse(String inLine) { // FINISHED
+		String[] ver = inLine.split("\t");
+		return ver[1];
+	}
+
+	/**
+	 * PsalmsReaderMain main() - Template for Assignment-4
+	 * 
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		try {
+			// Open the required text file for sequential read
+			// Scanner inputFile = new Scanner(new File("bible-psalms.txt"));
+			Scanner inputFile = new Scanner(new File("bible-psalms.txt"));
+
+			// Check for EOF, read the next line, and display it
+			while (inputFile.hasNextLine()) { // while loop says give me next line.
+				String inLine, verse; // creating string array
+				String[] verseParsed;
+
+				inLine = inputFile.nextLine(); // gets line from file
+				verse = getVerse(inLine); //
+				verseParsed = verse.split("[ :;,.'!?()-]+");
+
+				for (String s : verseParsed) { // sends each word in the LINE that its looking at to the list. also
+												// converts to lower case
+					addWordToList(s.toLowerCase());
+				} // verseParsed : an array of strings
+			}
+			// Close the required file when EOF is reached
+			inputFile.close();
+			printWordList(1000);
+		} // END try
+		catch (Exception e) {
+			// All Exceptions come here for graceful termination
+			System.out.println("PsalmsReaderMain Error: " + e);
+		} // END catch
+	} // END main
+} // END class
